@@ -1,0 +1,35 @@
+name: CD — Deploy na Vercel
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy para produção
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Rodar testes antes do deploy
+        run: npm test
+
+      - name: Instalar CLI da Vercel
+        run: npm install -g vercel
+
+      - name: Fazer deploy na Vercel
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
